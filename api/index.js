@@ -246,10 +246,11 @@ wss.on('connection', (connection, req) => {
 
   notifyAboutOnlinePeople();
 });
+
 if(process.env.NODE_ENV === "production") {
   app.use(express.static(path.join(__dirname, "/ChatEzy/dist")));
 
   app.get("*", (req,res)=> {
-    res.sendFile(path.resolve(__dirname, "ChatEzy", "dist", "index.html"));
+    res.sendFile(path.join(__dirname, "ChatEzy", "dist", "index.html"));
   });
 }
