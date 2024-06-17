@@ -15,34 +15,25 @@ const { ObjectId } = mongoose.Types;
 
 dotenv.config();
 
-
 mongoose.connect(process.env.MONGO_URL, { useNewUrlParser: true, useUnifiedTopology: true })
   .then(() => console.log("Database connected successfully"))
   .catch(err => console.log('Database connection failed', err));
 
-   __dirname = path.resolve();
-
+const __dirname = path.resolve();
 const jwtSecret = process.env.JWT_SECRET;
 const bcryptSalt = bcrypt.genSaltSync(10);
-
 
 const app = express();
 app.use('/uploads', express.static(__dirname + '/uploads'));
 app.use(express.json());
 app.use(cookieParser());
 
-
 const corsOptions = {
   origin: 'http://localhost:5173', 
   credentials: true,
-  METHODS:["GET"]
+  METHODS: ["GET"]
 };
 app.use(cors(corsOptions));
-
-
-
-
-
 
 async function getUserDataFromRequest(req) {
   return new Promise((resolve, reject) => {
@@ -58,11 +49,9 @@ async function getUserDataFromRequest(req) {
   });
 }
 
-
 app.get('/test', (req, res) => {
   res.json('test ok');
 });
-
 
 app.get('/messages/:userId', async (req, res) => {
   try {
@@ -82,7 +71,6 @@ app.get('/messages/:userId', async (req, res) => {
   }
 });
 
-
 app.get('/people', async (req, res) => {
   try {
     const users = await User.find({}, { _id: 1, username: 1 });
@@ -92,7 +80,6 @@ app.get('/people', async (req, res) => {
     res.status(500).json({ error: 'Failed to fetch users' });
   }
 });
-
 
 app.get('/profile', async (req, res) => {
   try {
@@ -109,7 +96,6 @@ app.get('/profile', async (req, res) => {
     res.status(401).json({ error: 'Unauthorized' });
   }
 });
-
 
 app.post('/login', async (req, res) => {
   try {
@@ -130,11 +116,9 @@ app.post('/login', async (req, res) => {
   }
 });
 
-
 app.post('/logout', (req, res) => {
   res.clearCookie('token').json('ok');
 });
-
 
 app.post('/register', async (req, res) => {
   try {
@@ -148,7 +132,6 @@ app.post('/register', async (req, res) => {
     res.status(500).json({ error: 'Registration failed' });
   }
 });
-
 
 const server = app.listen(4040, () => {
   console.log('Server is running on http://localhost:4040');
@@ -178,7 +161,6 @@ wss.on('connection', (connection, req) => {
     }, 1000);
   }, 5000);
 
-
   const cookies = req.headers.cookie;
   if (cookies) {
     const tokenCookieString = cookies.split(';').find(str => str.trim().startsWith('token='));
@@ -195,7 +177,6 @@ wss.on('connection', (connection, req) => {
     }
   }
 
-
   connection.on('message', async (message) => {
     const messageData = JSON.parse(message.toString());
     const { recipient, text, file } = messageData;
@@ -210,12 +191,11 @@ wss.on('connection', (connection, req) => {
       const parts = file.name.split('.');
       const ext = parts[parts.length - 1];
       filename = Date.now() + '.' + ext;
-      const path = __dirname + '/uploads/' + filename;
-      fs.writeFile(path, Buffer.from(file.data.split(',')[1], 'base64'), () => {
-        console.log('File saved:', path);
+      const filePath = __dirname + '/uploads/' + filename;
+      fs.writeFile(filePath, Buffer.from(file.data.split(',')[1], 'base64'), () => {
+        console.log('File saved:', filePath);
       });
     }
-
 
     if (recipient && (text || file)) {
       try {
@@ -227,7 +207,6 @@ wss.on('connection', (connection, req) => {
         });
         console.log('Message created:', messageDoc);
 
-     
         [...wss.clients]
           .filter(c => c.userId === recipient)
           .forEach(c => c.send(JSON.stringify({
@@ -243,14 +222,13 @@ wss.on('connection', (connection, req) => {
     }
   });
 
-
   notifyAboutOnlinePeople();
 });
 
-if(process.env.NODE_ENV === "production") {
+if (process.env.NODE_ENV === "production") {
   app.use(express.static(path.join(__dirname, "/ChatEzy/dist")));
 
-  app.get("*", (req,res)=> {
+  app.get("*", (req, res) => {
     res.sendFile(path.join(__dirname, "ChatEzy", "dist", "index.html"));
   });
 }
