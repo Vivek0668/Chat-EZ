@@ -11,7 +11,6 @@ export default function RegisterAndLoginForm() {
   const [isLoginOrRegister, setIsLoginOrRegister] = useState('login');
   const [errorMessage, setErrorMessage] = useState('');
   const { setUsername: setLoggedInUsername, setId } = useContext(UserContext);
-
   async function handleSubmit(ev) {
     ev.preventDefault();
     const url = isLoginOrRegister === 'register' ? '/register' : '/login';

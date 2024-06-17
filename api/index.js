@@ -4,11 +4,13 @@ const cookieParser = require('cookie-parser');
 const dotenv = require('dotenv');
 const jwt = require('jsonwebtoken');
 const cors = require('cors');
+const path = require('path');
 const bcrypt = require('bcryptjs');
 const User = require('./models/User');
 const Message = require('./models/Message');
 const ws = require('ws');
 const fs = require('fs');
+const { METHODS } = require('http');
 const { ObjectId } = mongoose.Types; 
 
 dotenv.config();
@@ -17,6 +19,8 @@ dotenv.config();
 mongoose.connect(process.env.MONGO_URL, { useNewUrlParser: true, useUnifiedTopology: true })
   .then(() => console.log("Database connected successfully"))
   .catch(err => console.log('Database connection failed', err));
+
+   __dirname = path.resolve();
 
 const jwtSecret = process.env.JWT_SECRET;
 const bcryptSalt = bcrypt.genSaltSync(10);
@@ -31,8 +35,13 @@ app.use(cookieParser());
 const corsOptions = {
   origin: 'http://localhost:5173', 
   credentials: true,
+  METHODS:["GET"]
 };
 app.use(cors(corsOptions));
+
+
+
+
 
 
 async function getUserDataFromRequest(req) {
@@ -237,3 +246,10 @@ wss.on('connection', (connection, req) => {
 
   notifyAboutOnlinePeople();
 });
+if(process.env.NODE_ENV === "production") {
+  app.use(express.static(path.join(__dirname, "/ChatEzy/dist")));
+
+  app.get("*", (req,res)=> {
+    res.sendFile(path.resolve(__dirname, "ChatEzy", "dist", "index.html"));
+  });
+}
