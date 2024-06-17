@@ -19,7 +19,7 @@ mongoose.connect(process.env.MONGO_URL, { useNewUrlParser: true, useUnifiedTopol
   .then(() => console.log("Database connected successfully"))
   .catch(err => console.log('Database connection failed', err));
 
-const __dirname = path.resolve();
+ __dirname = path.resolve();
 const jwtSecret = process.env.JWT_SECRET;
 const bcryptSalt = bcrypt.genSaltSync(10);
 
