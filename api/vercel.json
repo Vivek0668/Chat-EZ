@@ -4,20 +4,12 @@
     {
       "src": "index.js",
       "use": "@vercel/node"
-    },
-    {
-      "src": "ChatEzy/dist/**",
-      "use": "@vercel/static"
     }
   ],
   "routes": [
     {
-      "src": "/",
-      "dest": "ChatEzy/dist/index.html"
-    },
-    {
       "src": "/(.*)",
-      "dest": "ChatEzy/dist/$1"
+      "dest": "index.js"
     }
   ]
 }

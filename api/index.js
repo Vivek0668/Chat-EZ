@@ -10,7 +10,7 @@ const User = require('./models/User');
 const Message = require('./models/Message');
 const ws = require('ws');
 const fs = require('fs');
-const { ObjectId } = mongoose.Types;
+const { ObjectId } = mongoose.Types; 
 
 dotenv.config();
 
@@ -133,13 +133,6 @@ app.post('/register', async (req, res) => {
   }
 });
 
-if (process.env.NODE_ENV === "production") {
-  app.use(express.static(path.join(__dirname, "/ChatEzy/dist")));
-  app.get("*", (req, res) => {
-    res.sendFile(path.join(__dirname, "ChatEzy", "dist", "index.html"));
-  });
-}
-
 const server = app.listen(port, () => {
   console.log(`Server is running on http://localhost:${port}`);
 });
@@ -231,3 +224,11 @@ wss.on('connection', (connection, req) => {
 
   notifyAboutOnlinePeople();
 });
+
+if (process.env.NODE_ENV === "production") {
+  app.use(express.static(path.join(__dirname, "/ChatEzy/dist")));
+
+  app.get("*", (req, res) => {
+    res.sendFile(path.join(__dirname, "ChatEzy", "dist", "index.html"));
+  });
+}
