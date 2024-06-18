@@ -10,30 +10,28 @@ const User = require('./models/User');
 const Message = require('./models/Message');
 const ws = require('ws');
 const fs = require('fs');
-const { METHODS } = require('http');
-const { ObjectId } = mongoose.Types; 
+const { ObjectId } = mongoose.Types;
 
 dotenv.config();
 
-const port = procesos.env.PORT || 4040
+const port = process.env.PORT || 4040;
 
 mongoose.connect(process.env.MONGO_URL, { useNewUrlParser: true, useUnifiedTopology: true })
   .then(() => console.log("Database connected successfully"))
   .catch(err => console.log('Database connection failed', err));
 
- __dirname = path.resolve();
 const jwtSecret = process.env.JWT_SECRET;
 const bcryptSalt = bcrypt.genSaltSync(10);
 
 const app = express();
-app.use('/uploads', express.static(__dirname + '/uploads'));
+app.use('/uploads', express.static(path.join(__dirname, '/uploads')));
 app.use(express.json());
 app.use(cookieParser());
 
 const corsOptions = {
-  origin: 'http://localhost:5173', 
+  origin: 'http://localhost:5173',
   credentials: true,
-  METHODS: ["GET"]
+  methods: ["GET"]
 };
 app.use(cors(corsOptions));
 
@@ -135,8 +133,15 @@ app.post('/register', async (req, res) => {
   }
 });
 
-const server = app.listen(4040, () => {
-  console.log('Server is running on http://localhost:4040');
+if (process.env.NODE_ENV === "production") {
+  app.use(express.static(path.join(__dirname, "/ChatEzy/dist")));
+  app.get("*", (req, res) => {
+    res.sendFile(path.join(__dirname, "ChatEzy", "dist", "index.html"));
+  });
+}
+
+const server = app.listen(port, () => {
+  console.log(`Server is running on http://localhost:${port}`);
 });
 
 const wss = new ws.WebSocketServer({ server });
@@ -193,7 +198,7 @@ wss.on('connection', (connection, req) => {
       const parts = file.name.split('.');
       const ext = parts[parts.length - 1];
       filename = Date.now() + '.' + ext;
-      const filePath = __dirname + '/uploads/' + filename;
+      const filePath = path.join(__dirname, '/uploads/', filename);
       fs.writeFile(filePath, Buffer.from(file.data.split(',')[1], 'base64'), () => {
         console.log('File saved:', filePath);
       });
@@ -217,7 +222,8 @@ wss.on('connection', (connection, req) => {
             recipient,
             file: file ? filename : null,
             _id: messageDoc._id,
-          })));
+          }
+)));
       } catch (err) {
         console.error('Error creating message:', err);
       }
