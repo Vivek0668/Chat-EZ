@@ -15,6 +15,8 @@ const { ObjectId } = mongoose.Types;
 
 dotenv.config();
 
+const port = procesos.env.PORT || 4040
+
 mongoose.connect(process.env.MONGO_URL, { useNewUrlParser: true, useUnifiedTopology: true })
   .then(() => console.log("Database connected successfully"))
   .catch(err => console.log('Database connection failed', err));
