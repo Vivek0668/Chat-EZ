@@ -222,8 +222,7 @@ wss.on('connection', (connection, req) => {
             recipient,
             file: file ? filename : null,
             _id: messageDoc._id,
-          }
-)));
+          })));
       } catch (err) {
         console.error('Error creating message:', err);
       }
@@ -232,11 +231,3 @@ wss.on('connection', (connection, req) => {
 
   notifyAboutOnlinePeople();
 });
-
-if (process.env.NODE_ENV === "production") {
-  app.use(express.static(path.join(__dirname, "/ChatEzy/dist")));
-
-  app.get("*", (req, res) => {
-    res.sendFile(path.join(__dirname, "ChatEzy", "dist", "index.html"));
-  });
-}
